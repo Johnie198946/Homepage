@@ -1,0 +1,93 @@
+{
+  "common": {
+    "imageLoadError": "Image unavailable"
+  },
+  "nav": {
+    "home": "Home",
+    "works": "Works",
+    "gallery": "Gallery",
+    "about": "About"
+  },
+  "home": {
+    "title": "Johnie Photography",
+    "subtitle": "Capturing moments across the globe",
+    "scroll": "SCROLL TO EXPLORE",
+    "recentWorks": "Recent Works",
+    "recentWorksDesc": "A curated selection of my latest photographic journeys across five continents",
+    "viewAllWorks": "View All Works",
+    "exploreByLocation": "Explore by Location",
+    "emptyVideo": "No showreel published yet",
+    "emptyRecentWorks": "No recent works published yet",
+    "emptyLocations": "No locations published yet"
+  },
+  "works": {
+    "title": "Works",
+    "description": "A complete archive of photographic projects from 2023 to present, spanning five continents and diverse cultural landscapes.",
+    "projectCount": "Projects",
+    "categories": {
+      "landscape": "Landscape",
+      "architecture": "Architecture",
+      "street": "Street Photography"
+    }
+  },
+  "gallery": {
+    "title": "Gallery",
+    "description": "A visual journey across continents, capturing the essence of diverse cultures and landscapes through the lens.",
+    "loadFailed": "Failed to load gallery content. Please try again later.",
+    "filterByTheme": "Filter by Theme",
+    "filterByLocation": "Filter by Location",
+    "allThemes": "All Themes",
+    "all": "All",
+    "viewAll": "View All",
+    "photos": "Photos",
+    "showLess": "Show Less",
+    "emptyState": "No gallery collections published yet.",
+    "noMatches": "No matching collections."
+  },
+  "about": {
+    "title": "About",
+    "subtitle": "Johnie — Photographer & AI Developer",
+    "intro1": "I am a photographer and AI developer based globally, capturing moments across continents and building intelligent systems that shape the future.",
+    "intro2": "My photography journey has taken me through the alpine peaks of Switzerland, the historic streets of Istanbul, the Adriatic coasts of Croatia, the architectural grandeur of Budapest, and the neon-lit alleys of Tokyo. Each location tells a story, and through my lens, I seek to preserve the essence of these diverse cultures and landscapes.",
+    "intro3": "When I'm not behind the camera, I work on cutting-edge AI applications, merging creativity with technology to explore new possibilities in visual storytelling and computational photography.",
+    "locationsCaptured": "Locations Captured",
+    "connect": "Connect",
+    "businessTitle": "Internal Mail / Message Center",
+    "businessDesc": "If you want to discuss a collaboration, a photography project, or a creative idea, send an internal message here and it will appear in the admin message center for follow-up.",
+    "formName": "Name",
+    "formEmail": "Email",
+    "formCompany": "Company / Organization",
+    "formMessage": "Message",
+    "formSubmit": "Send Message",
+    "formSuccess": "Your internal message has been received and is now available in the admin message center for review."
+  },
+  "locations": {
+    "switzerland": "Switzerland",
+    "turkey": "Turkey",
+    "croatia": "Croatia",
+    "hungary": "Hungary",
+    "japan": "Japan"
+  },
+  "projects": {
+    "tokyoLights": {
+      "title": "Tokyo Lights",
+      "subtitle": "Urban Night Photography Series"
+    },
+    "danubeDreams": {
+      "title": "Danube Dreams",
+      "subtitle": "Architectural Heritage"
+    },
+    "adriaticCoast": {
+      "title": "Adriatic Coast",
+      "subtitle": "Mediterranean Seascapes"
+    },
+    "bosphorusNights": {
+      "title": "Bosphorus Nights",
+      "subtitle": "East Meets West"
+    },
+    "swissAlps": {
+      "title": "Swiss Alps",
+      "subtitle": "Alpine Serenity"
+    }
+  }
+}

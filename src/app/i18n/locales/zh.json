@@ -1,0 +1,93 @@
+{
+  "common": {
+    "imageLoadError": "图片加载失败"
+  },
+  "nav": {
+    "home": "主页",
+    "works": "作品",
+    "gallery": "图集",
+    "about": "关于"
+  },
+  "home": {
+    "title": "Johnie 摄影",
+    "subtitle": "捕捉全球每一个瞬间",
+    "scroll": "向下滚动探索",
+    "recentWorks": "近期作品",
+    "recentWorksDesc": "精选我在五大洲最新的摄影之旅",
+    "viewAllWorks": "查看所有作品",
+    "exploreByLocation": "按地区探索",
+    "emptyVideo": "暂未发布首页视频",
+    "emptyRecentWorks": "暂未发布近期作品",
+    "emptyLocations": "暂未发布可探索地区"
+  },
+  "works": {
+    "title": "作品集",
+    "description": "从2023年至今的完整摄影项目存档，跨越五大洲和多样的文化景观。",
+    "projectCount": "个项目",
+    "categories": {
+      "landscape": "风光",
+      "architecture": "建筑",
+      "street": "街拍"
+    }
+  },
+  "gallery": {
+    "title": "图集",
+    "description": "一场跨越大陆的视觉之旅，通过镜头捕捉不同文化和景观的精髓。",
+    "loadFailed": "图集加载失败，请稍后重试。",
+    "filterByTheme": "按主题筛选",
+    "filterByLocation": "按地区筛选",
+    "allThemes": "所有主题",
+    "all": "全部",
+    "viewAll": "查看全部",
+    "photos": "张照片",
+    "showLess": "收起",
+    "emptyState": "暂未发布图集内容。",
+    "noMatches": "没有匹配的图集。"
+  },
+  "about": {
+    "title": "关于",
+    "subtitle": "Johnie — 摄影师与AI开发者",
+    "intro1": "我是一名在全球各地工作的摄影师和AI开发者，捕捉各大洲的瞬间，同时构建塑造未来的智能系统。",
+    "intro2": "我的摄影之旅带我穿越瑞士的阿尔卑斯山峰、伊斯坦布尔的历史街道、克罗地亚的亚得里亚海岸、布达佩斯的建筑奇观，以及东京霓虹闪烁的巷弄。每个地方都有自己的故事，我通过镜头试图保存这些多元文化和景观的精髓。",
+    "intro3": "当我不在相机背后时，我致力于前沿的AI应用，将创造力与技术相结合，探索视觉叙事和计算摄影的新可能性。",
+    "locationsCaptured": "拍摄地点",
+    "connect": "联系方式",
+    "businessTitle": "内部信 / 消息中心",
+    "businessDesc": "如果你想发起合作、咨询摄影项目或交流创意想法，可以在这里发送内部信；消息会进入后台消息中心，便于我统一阅读和跟进。",
+    "formName": "姓名",
+    "formEmail": "邮箱",
+    "formCompany": "公司/组织",
+    "formMessage": "留言",
+    "formSubmit": "发送消息",
+    "formSuccess": "内部信已收到，现已进入后台消息中心等待阅读与处理。"
+  },
+  "locations": {
+    "switzerland": "瑞士",
+    "turkey": "土耳其",
+    "croatia": "克罗地亚",
+    "hungary": "匈牙利",
+    "japan": "日本"
+  },
+  "projects": {
+    "tokyoLights": {
+      "title": "东京之光",
+      "subtitle": "城市夜景摄影系列"
+    },
+    "danubeDreams": {
+      "title": "多瑙河之梦",
+      "subtitle": "建筑遗产"
+    },
+    "adriaticCoast": {
+      "title": "亚得里亚海岸",
+      "subtitle": "地中海景观"
+    },
+    "bosphorusNights": {
+      "title": "博斯普鲁斯之夜",
+      "subtitle": "东西方交汇"
+    },
+    "swissAlps": {
+      "title": "瑞士阿尔卑斯",
+      "subtitle": "阿尔卑斯宁静"
+    }
+  }
+}

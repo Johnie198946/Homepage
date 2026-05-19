@@ -1,0 +1,73 @@
+# Tasks
+- [x] Task 1: 修复并完成后端工程骨架
+  - [x] SubTask 1.1: 修复 `backend/app` 下已创建文件的语法、缩进、导入与配置问题，确保应用可导入启动
+  - [x] SubTask 1.2: 完成数据库基础设施与迁移骨架，确保 PostgreSQL、S3、JWT、CORS 配置可用
+  - [x] SubTask 1.3: 完成管理员鉴权、JWT 黑名单、审计日志与基础限流
+- [x] Task 2: 完成内容管理与媒体能力
+  - [x] SubTask 2.1: 完成视频 CRUD、上传校验、公开播放与后台管理接口
+  - [x] SubTask 2.2: 完成 Collection / Photo CRUD、批量操作、筛选分页与缩略图逻辑
+  - [x] SubTask 2.3: 完成 About 内容管理与 AI 应用入口管理
+  - [x] SubTask 2.4: 完成图片签名 URL、Referer 校验与版权信息返回
+- [x] Task 3: 完成访问分析能力
+  - [x] SubTask 3.1: 完成事件上报接口、异步持久化与限流
+  - [x] SubTask 3.2: 完成页面 PV、热门作品、按钮点击统计接口与 5 分钟缓存
+  - [x] SubTask 3.3: 完成 `analytics_events` 月分区建表与查询所需索引
+- [x] Task 4: 在不改变前端设计的前提下接入后端 API
+  - [x] SubTask 4.1: 保持现有页面视觉与布局不变，仅替换数据来源为 API
+  - [x] SubTask 4.2: 完成 Home / Gallery / About / Apps 的 API 接入与失败回退
+  - [x] SubTask 4.3: 完成 Admin 登录与 CRUD 接入，采用视觉不变的极简登录交互
+  - [x] SubTask 4.4: 完成前端埋点上报与图片懒加载
+- [x] Task 5: 验证与收尾
+  - [x] SubTask 5.1: 运行前端构建、类型检查与后端启动验证
+  - [x] SubTask 5.2: 按 checklist 逐项验收并补齐缺口
+- [x] Task 6: 补齐验收失败项
+  - [x] SubTask 6.1: 在 Admin 中补齐 Collection 的真实持久化 CRUD 接入，避免后台仅能管理 Photo 而无法管理 Collection
+  - [x] SubTask 6.2: 补齐本地验证链路，新增前端可执行的类型检查，并完成 PostgreSQL 初始化/迁移后重新验证后端启动
+- [x] Task 7: 补齐最终复验缺口
+  - [x] SubTask 7.1: 修正图片访问链路，使前端加载路径与后端 Referer 校验方案一致
+  - [x] SubTask 7.2: 移除 Home 与 Gallery 在 API 成功返回空数据时对硬编码内容的依赖，改为真实空态/失败态
+- [x] Task 8: 修复运行级验收阻断项
+  - [x] SubTask 8.1: 修复管理员登录哈希链路，确保真实 login/logout/JWT 黑名单可用
+  - [x] SubTask 8.2: 补齐本地对象存储可用性，确保视频与图片上传链路可实测通过
+  - [x] SubTask 8.3: 修正 Referer allowlist 配置与校验，使本地前端来源可正常访问媒体
+- [x] Task 9: 收口规范与安全闭环
+  - [x] SubTask 9.1: 对齐 design.md 与当前 Python/FastAPI 实现，消除规格与代码栈不一致
+  - [x] SubTask 9.2: 实现非白名单来源返回 403 与生产环境 HTTPS 重定向
+  - [x] SubTask 9.3: 让前端图片加载按 spec 先取签名 URL 再展示，并继续保持视觉不变
+  - [x] SubTask 9.4: 完成审计日志 90 天保留策略，并清理 Home/Gallery 对大段硬编码数据的最终依赖
+- [x] Task 10: 补齐后台 About 内容编辑入口
+  - [x] SubTask 10.1: 在 `Admin` 的主导航或内容管理分区中增加明确可见的 `About` 入口，确保其与现有视频、合集、图片、AI 管理入口同层级展示
+  - [x] SubTask 10.2: 为 `About` 入口补充结构化编辑表单，至少包含双语个人介绍、双语地点信息和联系方式字段，并保持与现有后台一致的视觉风格
+  - [x] SubTask 10.3: 将 `About` 表单保存动作独立接入 `/api/about`，补齐保存中状态、成功反馈、失败提示以及刷新后的数据回显逻辑
+  - [x] SubTask 10.4: 处理 About 空数据与缺失字段场景，确保后台显示可编辑空表单而不是空白或报错
+- [x] Task 11: 支持首页 3 个视频轮播
+  - [x] SubTask 11.1: 调整公开视频接口与相关说明，使首页仅按排序返回前 3 条启用视频，同时保留后台管理接口返回全部视频
+  - [x] SubTask 11.2: 改造 `Home` 首页视频区域，在不改变现有视觉风格的前提下支持 1 至 3 条视频自动轮播与失败回退
+  - [x] SubTask 11.3: 更新 `Admin` 视频管理区提示文案，让管理员明确知道首页会按排序轮播前 3 条启用视频
+  - [x] SubTask 11.4: 完成前端构建/类型检查与相关验收项回填，确认首页视频轮播链路可用
+- [x] Task 12: 扩展视频上传格式支持
+  - [x] SubTask 12.1: 扩展后端视频上传校验规则，使其至少支持 MP4、M4V、MOV、WebM 等主流格式，并保持现有大小与安全校验逻辑
+  - [x] SubTask 12.2: 更新 `Admin` 视频上传区的文件选择器与提示文案，使前后台声明的支持格式一致
+  - [x] SubTask 12.3: 完成格式支持相关验证，确认新增主流格式可上传，且不支持格式仍会被正确拒绝
+- [x] Task 13: 修复 MOV 首页不播放问题
+  - [x] SubTask 13.1: 复核首页视频播放链路与现有视频记录，明确问题是否由启用状态、排序、资源缺失、MIME 或浏览器兼容性导致
+  - [x] SubTask 13.2: 为首页播放链路补充兼容化方案，优先实现 MOV / M4V 上传后的转码或兼容分发资源输出
+  - [x] SubTask 13.3: 在后台对兼容性不稳定的视频格式增加明确提示，避免管理员误认为上传成功就一定能在首页直接播放
+  - [x] SubTask 13.4: 完成对现有问题视频（如《聚沙成塔...》）的回归验证，确认首页可播放或能明确给出降级提示
+- [ ] Task 14: 完成商务合作留言通知闭环
+  - [ ] SubTask 14.1: 为 About 页商务合作表单新增真实提交接口、数据库表与基础校验，替换当前仅本地 toast 的占位行为
+  - [ ] SubTask 14.2: 接入邮件发送能力，在留言成功后向站点拥有者发送通知邮件，并向访客发送确认邮件副本
+  - [ ] SubTask 14.3: 在 `Admin` 中新增商务合作留言管理入口，支持列表、详情与处理状态更新
+  - [ ] SubTask 14.4: 补齐邮件失败降级反馈与后台状态展示，确保“留言已保存但通知失败”可见
+  - [ ] SubTask 14.5: 完成端到端验收，包括访客提交、数据库留档、管理员查看和双向邮件通知验证
+
+# Task Dependencies
+- Task 2 depends on Task 1
+- Task 3 depends on Task 1
+- Task 4 depends on Task 1 and Task 2
+- Task 5 depends on Task 2, Task 3, and Task 4
+- Task 10 depends on Task 4
+- Task 11 depends on Task 2 and Task 4
+- Task 12 depends on Task 2 and Task 4
+- Task 13 depends on Task 11 and Task 12
+- Task 14 depends on Task 2, Task 4, and Task 10
