@@ -105,6 +105,7 @@ export function Gallery() {
   const [collections, setCollections] = useState<Collection[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const isZh = i18n.language.toLowerCase().startsWith("zh");
 
   useEffect(() => {
     const locationParam = searchParams.get("location");
@@ -125,16 +126,32 @@ export function Gallery() {
           return;
         }
 
+        const collectionMap = new Map(collectionItems.map((collection) => [collection.id, collection]));
         const photosByCollection = new Map<number, Photo[]>();
         for (const photo of photoItems) {
+          const collection = collectionMap.get(photo.collectionId);
+          const localizedCollectionLocation = collection
+            ? isZh
+              ? collection.locationZh
+              : collection.locationEn
+            : "";
+          const localizedCollectionDescription = collection
+            ? isZh
+              ? collection.descriptionZh
+              : collection.descriptionEn
+            : "";
           const current = photosByCollection.get(photo.collectionId) || [];
           current.push({
             id: photo.id,
             imageUrl: photo.imageUrl,
             thumbUrl: photo.thumbUrl,
-            description: photo.title || photo.description || photo.location,
-            location: photo.location,
-            details: photo.details || photo.description,
+            description: isZh
+              ? photo.titleZh || photo.descriptionZh || localizedCollectionLocation
+              : photo.titleEn || photo.descriptionEn || localizedCollectionLocation,
+            location: localizedCollectionLocation,
+            details: isZh
+              ? photo.detailsZh || photo.descriptionZh || localizedCollectionDescription
+              : photo.detailsEn || photo.descriptionEn || localizedCollectionDescription,
             width: photo.width,
             height: photo.height,
             category: photo.category,
@@ -148,8 +165,8 @@ export function Gallery() {
             .map((collection) => ({
               id: collection.id,
               locationEn: collection.locationEn,
-              location: collection.location,
-              description: collection.description,
+              location: isZh ? collection.locationZh : collection.locationEn,
+              description: isZh ? collection.descriptionZh : collection.descriptionEn,
               category: collection.category,
               photos: photosByCollection.get(collection.id) || [],
             }))
@@ -172,7 +189,7 @@ export function Gallery() {
     return () => {
       active = false;
     };
-  }, [i18n.language, t]);
+  }, [i18n.language, isZh, t]);
 
   const loadPhotoSrc = useCallback(
     (photo: Photo, preferFull = false, forceRefresh = false) =>
@@ -403,7 +420,7 @@ export function Gallery() {
                                 <LazyPhotoImage
                                   cacheKey={photo.id}
                                   loadSrc={(options) =>
-                                    loadPhotoSrc(photo, true, options?.forceRefresh ?? false)
+                                    loadPhotoSrc(photo, false, options?.forceRefresh ?? false)
                                   }
                                   errorMessage={t("common.imageLoadError")}
                                   alt={photo.description}

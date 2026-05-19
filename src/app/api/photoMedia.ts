@@ -37,9 +37,16 @@ export async function resolvePhotoMediaUrl(
   options: ResolvePhotoMediaOptions = {}
 ): Promise<string | null> {
   const preferFull = options.preferFull ?? false;
+  const directUrl = resolveFallbackUrl(photo, preferFull);
+
+  // Same-domain media endpoints are stable and already handle redirect/protection.
+  // Use them directly to avoid an extra presigned-URL request per image.
+  if (directUrl) {
+    return directUrl;
+  }
 
   if (!photo.id) {
-    return resolveFallbackUrl(photo, preferFull);
+    return null;
   }
 
   const cached = mediaCache.get(photo.id);
