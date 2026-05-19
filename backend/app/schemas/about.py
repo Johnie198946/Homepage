@@ -10,6 +10,30 @@ class AboutOut(BaseModel):
   contact: dict[str, str]
   intro_en: str
   intro_zh: str
+  home_title: str
+  home_subtitle: str
+  home_recent_works_label: str
+  home_explore_by_location_label: str
+  home_empty_video: str
+  home_empty_recent_works: str
+  home_empty_locations: str
+  home_loading_label: str
+  home_title_en: str
+  home_title_zh: str
+  home_subtitle_en: str
+  home_subtitle_zh: str
+  home_recent_works_label_en: str
+  home_recent_works_label_zh: str
+  home_explore_by_location_label_en: str
+  home_explore_by_location_label_zh: str
+  home_empty_video_en: str
+  home_empty_video_zh: str
+  home_empty_recent_works_en: str
+  home_empty_recent_works_zh: str
+  home_empty_locations_en: str
+  home_empty_locations_zh: str
+  home_loading_label_en: str
+  home_loading_label_zh: str
   locations_en: list[str]
   locations_zh: list[str]
   portrait_url: str | None = None
@@ -19,6 +43,22 @@ class AboutOut(BaseModel):
 class AboutUpdate(BaseModel):
   intro_en: str = Field(min_length=1, max_length=2000)
   intro_zh: str = Field(min_length=1, max_length=2000)
+  home_title_en: str = Field(min_length=1, max_length=300)
+  home_title_zh: str = Field(min_length=1, max_length=300)
+  home_subtitle_en: str = Field(min_length=1, max_length=2000)
+  home_subtitle_zh: str = Field(min_length=1, max_length=2000)
+  home_recent_works_label_en: str = Field(min_length=1, max_length=200)
+  home_recent_works_label_zh: str = Field(min_length=1, max_length=200)
+  home_explore_by_location_label_en: str = Field(min_length=1, max_length=200)
+  home_explore_by_location_label_zh: str = Field(min_length=1, max_length=200)
+  home_empty_video_en: str = Field(min_length=1, max_length=300)
+  home_empty_video_zh: str = Field(min_length=1, max_length=300)
+  home_empty_recent_works_en: str = Field(min_length=1, max_length=300)
+  home_empty_recent_works_zh: str = Field(min_length=1, max_length=300)
+  home_empty_locations_en: str = Field(min_length=1, max_length=300)
+  home_empty_locations_zh: str = Field(min_length=1, max_length=300)
+  home_loading_label_en: str = Field(min_length=1, max_length=100)
+  home_loading_label_zh: str = Field(min_length=1, max_length=100)
   locations_en: list[str] = Field(default_factory=list)
   locations_zh: list[str] = Field(default_factory=list)
   contact: dict[str, str] = Field(default_factory=dict)

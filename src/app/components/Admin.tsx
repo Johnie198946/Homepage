@@ -82,6 +82,30 @@ const EMPTY_ABOUT_CONTENT: AboutContent = {
   contact: {},
   introEn: "",
   introZh: "",
+  homeTitle: "",
+  homeSubtitle: "",
+  homeRecentWorksLabel: "",
+  homeExploreByLocationLabel: "",
+  homeEmptyVideo: "",
+  homeEmptyRecentWorks: "",
+  homeEmptyLocations: "",
+  homeLoadingLabel: "",
+  homeTitleEn: "",
+  homeTitleZh: "",
+  homeSubtitleEn: "",
+  homeSubtitleZh: "",
+  homeRecentWorksLabelEn: "",
+  homeRecentWorksLabelZh: "",
+  homeExploreByLocationLabelEn: "",
+  homeExploreByLocationLabelZh: "",
+  homeEmptyVideoEn: "",
+  homeEmptyVideoZh: "",
+  homeEmptyRecentWorksEn: "",
+  homeEmptyRecentWorksZh: "",
+  homeEmptyLocationsEn: "",
+  homeEmptyLocationsZh: "",
+  homeLoadingLabelEn: "",
+  homeLoadingLabelZh: "",
   locationsEn: [],
   locationsZh: [],
   portraitUrl: null,
@@ -231,6 +255,22 @@ export function Admin() {
   const [aboutForm, setAboutForm] = useState({
     introEn: "",
     introZh: "",
+    homeTitleEn: "",
+    homeTitleZh: "",
+    homeSubtitleEn: "",
+    homeSubtitleZh: "",
+    homeRecentWorksLabelEn: "",
+    homeRecentWorksLabelZh: "",
+    homeExploreByLocationLabelEn: "",
+    homeExploreByLocationLabelZh: "",
+    homeEmptyVideoEn: "",
+    homeEmptyVideoZh: "",
+    homeEmptyRecentWorksEn: "",
+    homeEmptyRecentWorksZh: "",
+    homeEmptyLocationsEn: "",
+    homeEmptyLocationsZh: "",
+    homeLoadingLabelEn: "",
+    homeLoadingLabelZh: "",
     locationsEn: "",
     locationsZh: "",
     email: "",
@@ -347,6 +387,22 @@ export function Admin() {
     setAboutForm({
       introEn: content.introEn,
       introZh: content.introZh,
+      homeTitleEn: content.homeTitleEn,
+      homeTitleZh: content.homeTitleZh,
+      homeSubtitleEn: content.homeSubtitleEn,
+      homeSubtitleZh: content.homeSubtitleZh,
+      homeRecentWorksLabelEn: content.homeRecentWorksLabelEn,
+      homeRecentWorksLabelZh: content.homeRecentWorksLabelZh,
+      homeExploreByLocationLabelEn: content.homeExploreByLocationLabelEn,
+      homeExploreByLocationLabelZh: content.homeExploreByLocationLabelZh,
+      homeEmptyVideoEn: content.homeEmptyVideoEn,
+      homeEmptyVideoZh: content.homeEmptyVideoZh,
+      homeEmptyRecentWorksEn: content.homeEmptyRecentWorksEn,
+      homeEmptyRecentWorksZh: content.homeEmptyRecentWorksZh,
+      homeEmptyLocationsEn: content.homeEmptyLocationsEn,
+      homeEmptyLocationsZh: content.homeEmptyLocationsZh,
+      homeLoadingLabelEn: content.homeLoadingLabelEn,
+      homeLoadingLabelZh: content.homeLoadingLabelZh,
       locationsEn: content.locationsEn.join("\n"),
       locationsZh: content.locationsZh.join("\n"),
       email: content.contact.email || content.contact.mail || "",
@@ -547,6 +603,22 @@ export function Admin() {
       const updated = await updateAbout({
         intro_en: aboutForm.introEn,
         intro_zh: aboutForm.introZh,
+        home_title_en: aboutForm.homeTitleEn,
+        home_title_zh: aboutForm.homeTitleZh,
+        home_subtitle_en: aboutForm.homeSubtitleEn,
+        home_subtitle_zh: aboutForm.homeSubtitleZh,
+        home_recent_works_label_en: aboutForm.homeRecentWorksLabelEn,
+        home_recent_works_label_zh: aboutForm.homeRecentWorksLabelZh,
+        home_explore_by_location_label_en: aboutForm.homeExploreByLocationLabelEn,
+        home_explore_by_location_label_zh: aboutForm.homeExploreByLocationLabelZh,
+        home_empty_video_en: aboutForm.homeEmptyVideoEn,
+        home_empty_video_zh: aboutForm.homeEmptyVideoZh,
+        home_empty_recent_works_en: aboutForm.homeEmptyRecentWorksEn,
+        home_empty_recent_works_zh: aboutForm.homeEmptyRecentWorksZh,
+        home_empty_locations_en: aboutForm.homeEmptyLocationsEn,
+        home_empty_locations_zh: aboutForm.homeEmptyLocationsZh,
+        home_loading_label_en: aboutForm.homeLoadingLabelEn,
+        home_loading_label_zh: aboutForm.homeLoadingLabelZh,
         locations_en: parseMultiline(aboutForm.locationsEn),
         locations_zh: parseMultiline(aboutForm.locationsZh),
         contact: {
@@ -1268,6 +1340,113 @@ export function Admin() {
                         onChange={(event) => updateAboutField("locationsZh", event.target.value)}
                         className="w-full px-4 py-3 border border-border focus:border-foreground outline-none resize-none bg-background"
                         placeholder="每行一个地点"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="grid md:grid-cols-2 gap-8">
+                    <div className="border border-border p-6 space-y-4">
+                      <h2 className="text-2xl">Home Copy (EN)</h2>
+                      <input
+                        value={aboutForm.homeTitleEn}
+                        onChange={(event) => updateAboutField("homeTitleEn", event.target.value)}
+                        placeholder="Home main title"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none bg-background"
+                      />
+                      <textarea
+                        rows={4}
+                        value={aboutForm.homeSubtitleEn}
+                        onChange={(event) => updateAboutField("homeSubtitleEn", event.target.value)}
+                        placeholder="Home subtitle"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none resize-none bg-background"
+                      />
+                      <input
+                        value={aboutForm.homeRecentWorksLabelEn}
+                        onChange={(event) => updateAboutField("homeRecentWorksLabelEn", event.target.value)}
+                        placeholder="Recent works button label"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none bg-background"
+                      />
+                      <input
+                        value={aboutForm.homeExploreByLocationLabelEn}
+                        onChange={(event) => updateAboutField("homeExploreByLocationLabelEn", event.target.value)}
+                        placeholder="Explore by location button label"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none bg-background"
+                      />
+                      <input
+                        value={aboutForm.homeEmptyVideoEn}
+                        onChange={(event) => updateAboutField("homeEmptyVideoEn", event.target.value)}
+                        placeholder="Empty video hint"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none bg-background"
+                      />
+                      <input
+                        value={aboutForm.homeEmptyRecentWorksEn}
+                        onChange={(event) => updateAboutField("homeEmptyRecentWorksEn", event.target.value)}
+                        placeholder="Empty recent works hint"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none bg-background"
+                      />
+                      <input
+                        value={aboutForm.homeEmptyLocationsEn}
+                        onChange={(event) => updateAboutField("homeEmptyLocationsEn", event.target.value)}
+                        placeholder="Empty locations hint"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none bg-background"
+                      />
+                      <input
+                        value={aboutForm.homeLoadingLabelEn}
+                        onChange={(event) => updateAboutField("homeLoadingLabelEn", event.target.value)}
+                        placeholder="Loading label"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none bg-background"
+                      />
+                    </div>
+                    <div className="border border-border p-6 space-y-4">
+                      <h2 className="text-2xl">Home 文案（中文）</h2>
+                      <input
+                        value={aboutForm.homeTitleZh}
+                        onChange={(event) => updateAboutField("homeTitleZh", event.target.value)}
+                        placeholder="首页主标题"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none bg-background"
+                      />
+                      <textarea
+                        rows={4}
+                        value={aboutForm.homeSubtitleZh}
+                        onChange={(event) => updateAboutField("homeSubtitleZh", event.target.value)}
+                        placeholder="首页副标题"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none resize-none bg-background"
+                      />
+                      <input
+                        value={aboutForm.homeRecentWorksLabelZh}
+                        onChange={(event) => updateAboutField("homeRecentWorksLabelZh", event.target.value)}
+                        placeholder="近期作品按钮文案"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none bg-background"
+                      />
+                      <input
+                        value={aboutForm.homeExploreByLocationLabelZh}
+                        onChange={(event) => updateAboutField("homeExploreByLocationLabelZh", event.target.value)}
+                        placeholder="按地区探索按钮文案"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none bg-background"
+                      />
+                      <input
+                        value={aboutForm.homeEmptyVideoZh}
+                        onChange={(event) => updateAboutField("homeEmptyVideoZh", event.target.value)}
+                        placeholder="首页视频为空提示"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none bg-background"
+                      />
+                      <input
+                        value={aboutForm.homeEmptyRecentWorksZh}
+                        onChange={(event) => updateAboutField("homeEmptyRecentWorksZh", event.target.value)}
+                        placeholder="近期作品为空提示"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none bg-background"
+                      />
+                      <input
+                        value={aboutForm.homeEmptyLocationsZh}
+                        onChange={(event) => updateAboutField("homeEmptyLocationsZh", event.target.value)}
+                        placeholder="地区为空提示"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none bg-background"
+                      />
+                      <input
+                        value={aboutForm.homeLoadingLabelZh}
+                        onChange={(event) => updateAboutField("homeLoadingLabelZh", event.target.value)}
+                        placeholder="加载中提示"
+                        className="w-full px-4 py-3 border border-border focus:border-foreground outline-none bg-background"
                       />
                     </div>
                   </div>

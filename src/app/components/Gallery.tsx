@@ -35,6 +35,18 @@ interface Collection {
 
 type PhotoOrientation = "landscape" | "portrait" | "square" | "unknown";
 
+const COLLAPSED_PHOTO_COUNT = 6;
+const GALLERY_GRID_CLASS_NAME =
+  "grid grid-cols-1 min-[520px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 xl:gap-x-6 xl:gap-y-12";
+const SKELETON_ORIENTATION_PATTERN: PhotoOrientation[] = [
+  "landscape",
+  "portrait",
+  "square",
+  "portrait",
+  "landscape",
+  "square",
+];
+
 function getPhotoOrientation(photo: Pick<Photo, "width" | "height">): PhotoOrientation {
   if (!photo.width || !photo.height) {
     return "unknown";
@@ -58,7 +70,29 @@ function getPhotoAspectRatio(photo: Pick<Photo, "width" | "height">) {
 }
 
 function getPhotoCardClassName(orientation: PhotoOrientation) {
-  return "mb-8 break-inside-avoid inline-block w-full";
+  switch (orientation) {
+    case "landscape":
+      return "col-span-1 min-[520px]:col-span-2 md:col-span-2";
+    case "square":
+      return "col-span-1";
+    case "portrait":
+    case "unknown":
+    default:
+      return "col-span-1";
+  }
+}
+
+function getSkeletonAspectRatio(orientation: PhotoOrientation) {
+  switch (orientation) {
+    case "landscape":
+      return "16 / 10";
+    case "square":
+      return "1 / 1";
+    case "portrait":
+    case "unknown":
+    default:
+      return "3 / 4";
+  }
 }
 
 export function Gallery() {
@@ -297,14 +331,21 @@ export function Gallery() {
           </motion.div>
 
           {isLoading ? (
-            <div className="columns-1 md:columns-2 xl:columns-3 gap-8">
-              {Array.from({ length: 6 }).map((_, index) => (
-                <div key={index} className="mb-8 break-inside-avoid space-y-4">
-                  <div className={`animate-pulse bg-muted ${index % 3 === 0 ? "aspect-[16/10]" : index % 3 === 1 ? "aspect-square" : "aspect-[3/4]"}`} />
-                  <div className="h-5 w-2/3 animate-pulse bg-muted" />
-                  <div className="h-4 w-1/2 animate-pulse bg-muted" />
-                </div>
-              ))}
+            <div className={GALLERY_GRID_CLASS_NAME}>
+              {Array.from({ length: COLLAPSED_PHOTO_COUNT }).map((_, index) => {
+                const orientation =
+                  SKELETON_ORIENTATION_PATTERN[index % SKELETON_ORIENTATION_PATTERN.length];
+                return (
+                  <div key={index} className={`${getPhotoCardClassName(orientation)} space-y-4 self-start`}>
+                    <div
+                      className="animate-pulse bg-muted"
+                      style={{ aspectRatio: getSkeletonAspectRatio(orientation) }}
+                    />
+                    <div className="h-5 w-2/3 animate-pulse bg-muted" />
+                    <div className="h-4 w-1/2 animate-pulse bg-muted" />
+                  </div>
+                );
+              })}
             </div>
           ) : (
             <div className="space-y-32">
@@ -316,7 +357,9 @@ export function Gallery() {
               {hasCollections &&
                 filteredCollections.map((collection, collectionIndex) => {
                   const isExpanded = expandedCollections.has(collection.location);
-                  const displayPhotos = isExpanded ? collection.photos : collection.photos.slice(0, 3);
+                  const displayPhotos = isExpanded
+                    ? collection.photos
+                    : collection.photos.slice(0, COLLAPSED_PHOTO_COUNT);
 
                   return (
                     <motion.div
@@ -331,52 +374,53 @@ export function Gallery() {
                         <p className="text-muted-foreground max-w-xl">{collection.description}</p>
                       </div>
 
-                      <div className="columns-1 md:columns-2 xl:columns-3 gap-8">
+                      <div className={GALLERY_GRID_CLASS_NAME}>
                         {displayPhotos.map((photo, photoIndex) => {
                           const orientation = getPhotoOrientation(photo);
                           return (
-                          <motion.div
-                            key={photo.id}
-                            initial={{ opacity: 0, scale: 0.95 }}
-                            whileInView={{ opacity: 1, scale: 1 }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 0.4, delay: photoIndex * 0.1 }}
-                            whileHover={{ scale: 1.02 }}
-                            className={`cursor-pointer group ${getPhotoCardClassName(orientation)}`}
-                            onClick={() => {
-                              setSelectedPhoto(photo);
-                              void trackEvent({
-                                eventType: "photo_view",
-                                targetType: "photo",
-                                targetId: String(photo.id),
-                                meta: { location: photo.location },
-                              });
-                            }}
-                          >
-                            <div
-                              className="overflow-hidden bg-muted"
-                              style={{ aspectRatio: getPhotoAspectRatio(photo) }}
+                            <motion.div
+                              key={photo.id}
+                              initial={{ opacity: 0, scale: 0.95 }}
+                              whileInView={{ opacity: 1, scale: 1 }}
+                              viewport={{ once: true }}
+                              transition={{ duration: 0.4, delay: photoIndex * 0.1 }}
+                              whileHover={{ scale: 1.02 }}
+                              className={`cursor-pointer group ${getPhotoCardClassName(orientation)} self-start`}
+                              onClick={() => {
+                                setSelectedPhoto(photo);
+                                void trackEvent({
+                                  eventType: "photo_view",
+                                  targetType: "photo",
+                                  targetId: String(photo.id),
+                                  meta: { location: photo.location },
+                                });
+                              }}
                             >
-                              <LazyPhotoImage
-                                cacheKey={photo.id}
-                                loadSrc={(options) =>
-                                  loadPhotoSrc(photo, true, options?.forceRefresh ?? false)
-                                }
-                                errorMessage={t("common.imageLoadError")}
-                                alt={photo.description}
-                                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                placeholderClassName="bg-muted"
-                              />
-                            </div>
-                            <div className="mt-4 space-y-1">
-                              <h3 className="font-medium">{photo.description}</h3>
-                              <p className="text-sm text-muted-foreground">{photo.location}</p>
-                            </div>
-                          </motion.div>
-                        )})}
+                              <div
+                                className="overflow-hidden bg-muted"
+                                style={{ aspectRatio: getPhotoAspectRatio(photo) }}
+                              >
+                                <LazyPhotoImage
+                                  cacheKey={photo.id}
+                                  loadSrc={(options) =>
+                                    loadPhotoSrc(photo, true, options?.forceRefresh ?? false)
+                                  }
+                                  errorMessage={t("common.imageLoadError")}
+                                  alt={photo.description}
+                                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                  placeholderClassName="bg-muted"
+                                />
+                              </div>
+                              <div className="mt-4 space-y-1">
+                                <h3 className="font-medium">{photo.description}</h3>
+                                <p className="text-sm text-muted-foreground">{photo.location}</p>
+                              </div>
+                            </motion.div>
+                          );
+                        })}
                       </div>
 
-                      {collection.photos.length > 3 && (
+                      {collection.photos.length > COLLAPSED_PHOTO_COUNT && (
                         <div className="mt-8 text-center">
                           <button
                             onClick={() => {

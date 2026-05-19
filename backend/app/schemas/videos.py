@@ -9,6 +9,9 @@ class VideoOut(BaseModel):
   url: str
   mime_type: str
   file_size: int
+  homepage_url: str | None = None
+  homepage_mime_type: str | None = None
+  homepage_file_size: int | None = None
   is_active: bool
   sort_order: int
   created_at: datetime

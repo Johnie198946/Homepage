@@ -24,6 +24,7 @@
     "title": "作品集",
     "description": "从2023年至今的完整摄影项目存档，跨越五大洲和多样的文化景观。",
     "projectCount": "个项目",
+    "emptyState": "暂未发布作品内容。",
     "categories": {
       "landscape": "风光",
       "architecture": "建筑",

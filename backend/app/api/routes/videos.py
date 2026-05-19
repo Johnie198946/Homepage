@@ -17,6 +17,7 @@ from app.services.file_validation import (
   validate_video_upload,
 )
 from app.services.storage import build_object_url, ensure_bucket_exists, get_s3_client, presign_get_object
+from app.services.video_processing import generate_homepage_video_variant, optimize_video_for_web
 
 
 logger = logging.getLogger(__name__)
@@ -31,6 +32,9 @@ def _video_to_out(video: HomeVideo) -> VideoOut:
     url=f'/api/videos/{video.id}/play',
     mime_type=normalize_video_playback_mime_type(video.mime_type),
     file_size=video.file_size,
+    homepage_url=f'/api/videos/{video.id}/play?variant=homepage' if video.homepage_s3_key else None,
+    homepage_mime_type=normalize_video_playback_mime_type(video.homepage_mime_type) if video.homepage_mime_type else None,
+    homepage_file_size=video.homepage_file_size,
     is_active=video.is_active,
     sort_order=video.sort_order,
     created_at=video.created_at,
@@ -78,12 +82,13 @@ def list_all(admin=Depends(get_current_admin), db: Session = Depends(get_db)):
 
 
 @router.get('/{video_id}/play')
-def play(video_id: int, db: Session = Depends(get_db)):
+def play(video_id: int, variant: str | None = None, db: Session = Depends(get_db)):
   video = db.query(HomeVideo).filter(HomeVideo.id == video_id).first()
   if not video or not video.is_active:
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Video not found')
 
-  presigned = presign_get_object(key=video.s3_key, expires_in=3600)
+  key = video.homepage_s3_key if variant == 'homepage' and video.homepage_s3_key else video.s3_key
+  presigned = presign_get_object(key=key, expires_in=3600)
   return RedirectResponse(url=presigned.url, status_code=status.HTTP_307_TEMPORARY_REDIRECT)
 
 
@@ -107,21 +112,36 @@ def create_video(
   except FileValidationError as exc:
     raise HTTPException(status_code=exc.status_code, detail=str(exc)) from exc
 
+  data = optimize_video_for_web(data, content_type=content_type)
+  size = len(data)
+  homepage_variant = generate_homepage_video_variant(data, content_type=content_type)
+
   key = f'videos/{uuid.uuid4().hex}'
+  homepage_key = f'videos/homepage/{uuid.uuid4().hex}.mp4' if homepage_variant else None
   ensure_bucket_exists()
   client = get_s3_client()
 
   try:
     client.put_object(Bucket=settings.s3_bucket, Key=key, Body=data, ContentType=content_type)
+    if homepage_variant and homepage_key:
+      client.put_object(
+        Bucket=settings.s3_bucket,
+        Key=homepage_key,
+        Body=homepage_variant.data,
+        ContentType=homepage_variant.content_type,
+      )
   except Exception as exc:
     raise HTTPException(status_code=status.HTTP_502_BAD_GATEWAY, detail='Upload failed') from exc
 
   video = HomeVideo(
     title=title or file.filename or 'Video',
     s3_key=key,
+    homepage_s3_key=homepage_key,
     source_url=build_object_url(key=key),
     mime_type=content_type,
     file_size=size,
+    homepage_mime_type=homepage_variant.content_type if homepage_variant else None,
+    homepage_file_size=len(homepage_variant.data) if homepage_variant else None,
     sort_order=sort_order,
     is_active=is_active,
   )
@@ -133,6 +153,8 @@ def create_video(
     db.rollback()
     try:
       client.delete_object(Bucket=settings.s3_bucket, Key=key)
+      if homepage_key:
+        client.delete_object(Bucket=settings.s3_bucket, Key=homepage_key)
     except Exception:
       logger.exception('Failed to cleanup orphaned video upload', extra={'key': key})
     raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, detail='Create failed') from exc
@@ -199,12 +221,15 @@ def delete_video(
     raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail='Video not found')
 
   s3_key = video.s3_key
+  homepage_s3_key = video.homepage_s3_key
   db.delete(video)
   db.commit()
 
   try:
     client = get_s3_client()
     client.delete_object(Bucket=settings.s3_bucket, Key=s3_key)
+    if homepage_s3_key:
+      client.delete_object(Bucket=settings.s3_bucket, Key=homepage_s3_key)
   except Exception:
     logger.exception('Failed to delete video from object storage', extra={'key': s3_key, 'video_id': video_id})
 

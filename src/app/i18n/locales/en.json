@@ -24,6 +24,7 @@
     "title": "Works",
     "description": "A complete archive of photographic projects from 2023 to present, spanning five continents and diverse cultural landscapes.",
     "projectCount": "Projects",
+    "emptyState": "No works published yet.",
     "categories": {
       "landscape": "Landscape",
       "architecture": "Architecture",

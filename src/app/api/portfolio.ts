@@ -8,6 +8,9 @@ interface BackendVideo {
   url: string;
   mime_type: string;
   file_size: number;
+  homepage_url?: string | null;
+  homepage_mime_type?: string | null;
+  homepage_file_size?: number | null;
   is_active: boolean;
   sort_order: number;
   created_at: string;
@@ -59,6 +62,30 @@ interface BackendAbout {
   contact: Record<string, string>;
   intro_en: string;
   intro_zh: string;
+  home_title: string;
+  home_subtitle: string;
+  home_recent_works_label: string;
+  home_explore_by_location_label: string;
+  home_empty_video: string;
+  home_empty_recent_works: string;
+  home_empty_locations: string;
+  home_loading_label: string;
+  home_title_en: string;
+  home_title_zh: string;
+  home_subtitle_en: string;
+  home_subtitle_zh: string;
+  home_recent_works_label_en: string;
+  home_recent_works_label_zh: string;
+  home_explore_by_location_label_en: string;
+  home_explore_by_location_label_zh: string;
+  home_empty_video_en: string;
+  home_empty_video_zh: string;
+  home_empty_recent_works_en: string;
+  home_empty_recent_works_zh: string;
+  home_empty_locations_en: string;
+  home_empty_locations_zh: string;
+  home_loading_label_en: string;
+  home_loading_label_zh: string;
   locations_en: string[];
   locations_zh: string[];
   portrait_url: string | null;
@@ -133,6 +160,9 @@ export interface VideoItem {
   url: string;
   mimeType: string;
   fileSize: number;
+  homepageUrl?: string | null;
+  homepageMimeType?: string | null;
+  homepageFileSize?: number | null;
   isActive: boolean;
   sortOrder: number;
   createdAt: string;
@@ -198,6 +228,30 @@ export interface AboutContent {
   contact: Record<string, string>;
   introEn: string;
   introZh: string;
+  homeTitle: string;
+  homeSubtitle: string;
+  homeRecentWorksLabel: string;
+  homeExploreByLocationLabel: string;
+  homeEmptyVideo: string;
+  homeEmptyRecentWorks: string;
+  homeEmptyLocations: string;
+  homeLoadingLabel: string;
+  homeTitleEn: string;
+  homeTitleZh: string;
+  homeSubtitleEn: string;
+  homeSubtitleZh: string;
+  homeRecentWorksLabelEn: string;
+  homeRecentWorksLabelZh: string;
+  homeExploreByLocationLabelEn: string;
+  homeExploreByLocationLabelZh: string;
+  homeEmptyVideoEn: string;
+  homeEmptyVideoZh: string;
+  homeEmptyRecentWorksEn: string;
+  homeEmptyRecentWorksZh: string;
+  homeEmptyLocationsEn: string;
+  homeEmptyLocationsZh: string;
+  homeLoadingLabelEn: string;
+  homeLoadingLabelZh: string;
   locationsEn: string[];
   locationsZh: string[];
   portraitUrl: string | null;
@@ -303,6 +357,9 @@ function toVideoItem(video: BackendVideo): VideoItem {
     url: video.url,
     mimeType: normalizeVideoMimeType(video.mime_type),
     fileSize: video.file_size,
+    homepageUrl: video.homepage_url ?? null,
+    homepageMimeType: video.homepage_mime_type ? normalizeVideoMimeType(video.homepage_mime_type) : null,
+    homepageFileSize: video.homepage_file_size ?? null,
     isActive: video.is_active,
     sortOrder: video.sort_order,
     createdAt: video.created_at,
@@ -375,6 +432,30 @@ function toAboutContent(content: BackendAbout): AboutContent {
     contact,
     introEn: content.intro_en || "",
     introZh: content.intro_zh || "",
+    homeTitle: content.home_title || "",
+    homeSubtitle: content.home_subtitle || "",
+    homeRecentWorksLabel: content.home_recent_works_label || "",
+    homeExploreByLocationLabel: content.home_explore_by_location_label || "",
+    homeEmptyVideo: content.home_empty_video || "",
+    homeEmptyRecentWorks: content.home_empty_recent_works || "",
+    homeEmptyLocations: content.home_empty_locations || "",
+    homeLoadingLabel: content.home_loading_label || "",
+    homeTitleEn: content.home_title_en || "",
+    homeTitleZh: content.home_title_zh || "",
+    homeSubtitleEn: content.home_subtitle_en || "",
+    homeSubtitleZh: content.home_subtitle_zh || "",
+    homeRecentWorksLabelEn: content.home_recent_works_label_en || "",
+    homeRecentWorksLabelZh: content.home_recent_works_label_zh || "",
+    homeExploreByLocationLabelEn: content.home_explore_by_location_label_en || "",
+    homeExploreByLocationLabelZh: content.home_explore_by_location_label_zh || "",
+    homeEmptyVideoEn: content.home_empty_video_en || "",
+    homeEmptyVideoZh: content.home_empty_video_zh || "",
+    homeEmptyRecentWorksEn: content.home_empty_recent_works_en || "",
+    homeEmptyRecentWorksZh: content.home_empty_recent_works_zh || "",
+    homeEmptyLocationsEn: content.home_empty_locations_en || "",
+    homeEmptyLocationsZh: content.home_empty_locations_zh || "",
+    homeLoadingLabelEn: content.home_loading_label_en || "",
+    homeLoadingLabelZh: content.home_loading_label_zh || "",
     locationsEn: Array.isArray(content.locations_en) ? content.locations_en : [],
     locationsZh: Array.isArray(content.locations_zh) ? content.locations_zh : [],
     portraitUrl: content.portrait_url,
@@ -599,6 +680,22 @@ export async function fetchAbout(lang?: string) {
 export async function updateAbout(payload: {
   intro_en: string;
   intro_zh: string;
+  home_title_en: string;
+  home_title_zh: string;
+  home_subtitle_en: string;
+  home_subtitle_zh: string;
+  home_recent_works_label_en: string;
+  home_recent_works_label_zh: string;
+  home_explore_by_location_label_en: string;
+  home_explore_by_location_label_zh: string;
+  home_empty_video_en: string;
+  home_empty_video_zh: string;
+  home_empty_recent_works_en: string;
+  home_empty_recent_works_zh: string;
+  home_empty_locations_en: string;
+  home_empty_locations_zh: string;
+  home_loading_label_en: string;
+  home_loading_label_zh: string;
   locations_en: string[];
   locations_zh: string[];
   contact: Record<string, string>;

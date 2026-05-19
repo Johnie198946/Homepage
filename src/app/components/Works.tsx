@@ -1,92 +1,82 @@
+import { useEffect, useMemo, useState } from "react";
 import { Navigation } from "./Navigation";
 import { motion } from "motion/react";
 import { Link } from "react-router";
 import { ArrowRight } from "lucide-react";
+import { useTranslation } from "react-i18next";
+import { fetchCollections, type CollectionItem } from "../api/portfolio";
 
-const allWorks = [
-  {
-    title: "Tokyo Lights",
-    subtitle: "Urban Night Photography Series",
-    location: "Tokyo, Japan",
-    date: "2024",
-    category: "Street Photography",
-    link: "/gallery?location=Japan",
-  },
-  {
-    title: "Danube Dreams",
-    subtitle: "Architectural Heritage",
-    location: "Budapest, Hungary",
-    date: "2024",
-    category: "Architecture",
-    link: "/gallery?location=Hungary",
-  },
-  {
-    title: "Adriatic Coast",
-    subtitle: "Mediterranean Seascapes",
-    location: "Dubrovnik, Croatia",
-    date: "2024",
-    category: "Landscape",
-    link: "/gallery?location=Croatia",
-  },
-  {
-    title: "Bosphorus Nights",
-    subtitle: "East Meets West",
-    location: "Istanbul, Turkey",
-    date: "2024",
-    category: "Architecture",
-    link: "/gallery?location=Turkey",
-  },
-  {
-    title: "Swiss Alps",
-    subtitle: "Alpine Serenity",
-    location: "Switzerland",
-    date: "2024",
-    category: "Landscape",
-    link: "/gallery?location=Switzerland",
-  },
-  {
-    title: "Blue Mosque Interior",
-    subtitle: "Sacred Spaces",
-    location: "Istanbul, Turkey",
-    date: "2023",
-    category: "Architecture",
-    link: "/gallery?location=Turkey",
-  },
-  {
-    title: "Mountain Villages",
-    subtitle: "Alpine Life",
-    location: "Switzerland",
-    date: "2023",
-    category: "Landscape",
-    link: "/gallery?location=Switzerland",
-  },
-  {
-    title: "Parliament by Night",
-    subtitle: "Neo-Gothic Grandeur",
-    location: "Budapest, Hungary",
-    date: "2023",
-    category: "Architecture",
-    link: "/gallery?location=Hungary",
-  },
-  {
-    title: "Shibuya Crossing",
-    subtitle: "Urban Movement",
-    location: "Tokyo, Japan",
-    date: "2023",
-    category: "Street Photography",
-    link: "/gallery?location=Japan",
-  },
-  {
-    title: "Dubrovnik Old Town",
-    subtitle: "Medieval Heritage",
-    location: "Croatia",
-    date: "2023",
-    category: "Architecture",
-    link: "/gallery?location=Croatia",
-  },
-];
+type WorkItem = {
+  id: number;
+  title: string;
+  subtitle: string;
+  meta: string;
+  date: string;
+  category: string;
+  link: string;
+};
 
 export function Works() {
+  const { t, i18n } = useTranslation();
+  const [works, setWorks] = useState<WorkItem[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    let active = true;
+
+    const toWorkItem = (collection: CollectionItem): WorkItem => ({
+      id: collection.id,
+      title: collection.location,
+      subtitle: collection.description || collection.category,
+      meta: `${collection.photoCount} ${t("gallery.photos")}`,
+      date: new Date(collection.createdAt).getFullYear().toString(),
+      category: collection.category,
+      link: `/gallery?location=${encodeURIComponent(collection.locationEn)}`,
+    });
+
+    void fetchCollections(i18n.language)
+      .then((items) => {
+        if (!active) {
+          return;
+        }
+        const nextWorks = items
+          .slice()
+          .sort((a, b) => a.sortOrder - b.sortOrder || a.createdAt.localeCompare(b.createdAt))
+          .map(toWorkItem);
+        setWorks(nextWorks);
+      })
+      .catch(() => {
+        if (active) {
+          setWorks([]);
+        }
+      })
+      .finally(() => {
+        if (active) {
+          setIsLoading(false);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [i18n.language, t]);
+
+  const yearRange = useMemo(() => {
+    if (works.length === 0) {
+      return "";
+    }
+    const years = works
+      .map((item) => Number(item.date))
+      .filter((value) => Number.isFinite(value))
+      .sort((a, b) => a - b);
+    if (years.length === 0) {
+      return "";
+    }
+    const first = years[0];
+    const last = years[years.length - 1];
+    return first === last ? `${first}` : `${first} - ${last}`;
+  }, [works]);
+
   return (
     <div className="min-h-screen bg-background">
       <Navigation variant="light" className="bg-background/95 backdrop-blur-sm" />
@@ -98,17 +88,16 @@ export function Works() {
           transition={{ duration: 0.6 }}
           className="mb-16"
         >
-          <h1 className="text-4xl md:text-6xl mb-6">Works</h1>
+          <h1 className="text-4xl md:text-6xl mb-6">{t("works.title")}</h1>
           <p className="text-muted-foreground max-w-2xl">
-            A complete archive of photographic projects from 2023 to present, spanning five
-            continents and diverse cultural landscapes.
+            {t("works.description")}
           </p>
         </motion.div>
 
         <div className="space-y-0 border-t border-border">
-          {allWorks.map((work, index) => (
+          {works.map((work, index) => (
             <motion.div
-              key={index}
+              key={work.id}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
@@ -125,9 +114,7 @@ export function Works() {
                     </h2>
                     <p className="text-muted-foreground">{work.subtitle}</p>
                   </div>
-                  <div className="text-muted-foreground text-sm md:text-base">
-                    {work.location}
-                  </div>
+                  <div className="text-muted-foreground text-sm md:text-base">{work.meta}</div>
                   <div className="text-muted-foreground text-sm uppercase tracking-wider">
                     {work.category}
                   </div>
@@ -142,6 +129,9 @@ export function Works() {
               </Link>
             </motion.div>
           ))}
+          {!isLoading && works.length === 0 && (
+            <div className="py-12 text-center text-muted-foreground">{t("works.emptyState")}</div>
+          )}
         </div>
 
         <motion.div
@@ -152,7 +142,7 @@ export function Works() {
           className="mt-16 text-center text-muted-foreground"
         >
           <p className="text-sm tracking-wider uppercase">
-            {allWorks.length} Projects · 2023 - 2024
+            {isLoading ? (i18n.language.toLowerCase().startsWith("zh") ? "加载中" : "Loading") : `${works.length} ${t("works.projectCount")}${yearRange ? ` · ${yearRange}` : ""}`}
           </p>
         </motion.div>
       </div>

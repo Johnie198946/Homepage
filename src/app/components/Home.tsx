@@ -5,7 +5,7 @@ import { Navigation } from "./Navigation";
 import { LazyPhotoImage } from "./LazyPhotoImage";
 import { motion, AnimatePresence } from "motion/react";
 import { ArrowRight, Grid3x3, Briefcase } from "lucide-react";
-import { fetchCollections, fetchPhotos, fetchPublicVideos, trackEvent } from "../api/portfolio";
+import { fetchAbout, fetchCollections, fetchPhotos, fetchPublicVideos, trackEvent, type AboutContent } from "../api/portfolio";
 import { resolvePhotoMediaUrl } from "../api/photoMedia";
 
 type FeaturedProject = {
@@ -45,7 +45,19 @@ export function Home() {
   const [featuredItems, setFeaturedItems] = useState<FeaturedProject[]>([]);
   const [isVideoLoading, setIsVideoLoading] = useState(true);
   const [isFeaturedLoading, setIsFeaturedLoading] = useState(true);
-  const { t } = useTranslation();
+  const [homeContent, setHomeContent] = useState<AboutContent | null>(null);
+  const { t, i18n } = useTranslation();
+
+  const homeText = {
+    title: homeContent?.homeTitle || t("home.title"),
+    subtitle: homeContent?.homeSubtitle || t("home.subtitle"),
+    recentWorks: homeContent?.homeRecentWorksLabel || t("home.recentWorks"),
+    exploreByLocation: homeContent?.homeExploreByLocationLabel || t("home.exploreByLocation"),
+    emptyVideo: homeContent?.homeEmptyVideo || t("home.emptyVideo"),
+    emptyRecentWorks: homeContent?.homeEmptyRecentWorks || t("home.emptyRecentWorks"),
+    emptyLocations: homeContent?.homeEmptyLocations || t("home.emptyLocations"),
+    loading: homeContent?.homeLoadingLabel || (i18n.language.toLowerCase().startsWith("zh") ? "加载中" : "Loading"),
+  };
 
   useEffect(() => {
     // Disable right-click on video
@@ -76,6 +88,26 @@ export function Home() {
   useEffect(() => {
     let active = true;
 
+    void fetchAbout(i18n.language)
+      .then((content) => {
+        if (active) {
+          setHomeContent(content);
+        }
+      })
+      .catch(() => {
+        if (active) {
+          setHomeContent(null);
+        }
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [i18n.language]);
+
+  useEffect(() => {
+    let active = true;
+
     void fetchPublicVideos()
       .then((items) => {
         if (!active) {
@@ -85,7 +117,11 @@ export function Home() {
           .filter((video) => video.isActive)
           .sort((a, b) => a.sortOrder - b.sortOrder || a.createdAt.localeCompare(b.createdAt))
           .slice(0, 3)
-          .map((video) => ({ src: video.url, type: video.mimeType, title: video.title }));
+          .map((video) => ({
+            src: video.homepageUrl || video.url,
+            type: video.homepageMimeType || video.mimeType,
+            title: video.title,
+          }));
         setVideoSources(nextSources);
         setCurrentVideoIndex(0);
         setFailedVideoSources([]);
@@ -253,9 +289,9 @@ export function Home() {
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.2 }}
           >
-            <h1 className="text-5xl md:text-7xl mb-4 tracking-tight">{t("home.title")}</h1>
+            <h1 className="text-5xl md:text-7xl mb-4 tracking-tight">{homeText.title}</h1>
             <p className="text-lg md:text-xl opacity-90 max-w-2xl mx-auto tracking-wide">
-              {t("home.subtitle")}
+              {homeText.subtitle}
             </p>
           </motion.div>
         </div>
@@ -319,7 +355,7 @@ export function Home() {
                     ))
                   ) : (
                     <div className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs tracking-[0.2em] uppercase text-white/80 backdrop-blur-md">
-                      {t("home.emptyRecentWorks")}
+                      {homeText.emptyRecentWorks}
                     </div>
                   )}
                 </motion.div>
@@ -356,7 +392,7 @@ export function Home() {
                       transition={{ duration: 0.3 }}
                       className="flex items-center gap-2 whitespace-nowrap text-sm tracking-wider uppercase overflow-hidden"
                     >
-                      <span>{t("home.recentWorks")}</span>
+                      <span>{homeText.recentWorks}</span>
                       <ArrowRight size={16} />
                     </motion.div>
                   )}
@@ -423,7 +459,7 @@ export function Home() {
                     ))
                   ) : (
                     <div className="rounded-full border border-white/20 bg-white/10 px-4 py-2 text-xs tracking-[0.2em] uppercase text-white/80 backdrop-blur-md">
-                      {t("home.emptyLocations")}
+                      {homeText.emptyLocations}
                     </div>
                   )}
                 </motion.div>
@@ -460,7 +496,7 @@ export function Home() {
                       transition={{ duration: 0.3 }}
                       className="flex items-center gap-2 whitespace-nowrap text-sm tracking-wider uppercase overflow-hidden"
                     >
-                      <span>{t("home.exploreByLocation")}</span>
+                      <span>{homeText.exploreByLocation}</span>
                       <ArrowRight size={16} />
                     </motion.div>
                   )}
@@ -472,12 +508,12 @@ export function Home() {
 
         {(isVideoLoading || isFeaturedLoading) && (
           <div className="absolute bottom-6 right-8 text-xs tracking-[0.25em] uppercase text-white/70">
-            Loading
+            {homeText.loading}
           </div>
         )}
         {!isVideoLoading && !hasVideoSources && (
           <div className="absolute bottom-6 right-8 rounded-full border border-white/15 bg-white/10 px-4 py-2 text-[10px] tracking-[0.25em] uppercase text-white/70 backdrop-blur-md">
-            {t("home.emptyVideo")}
+            {homeText.emptyVideo}
           </div>
         )}
       </div>

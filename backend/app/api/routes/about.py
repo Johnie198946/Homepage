@@ -20,6 +20,30 @@ def _serialize_about(content: AboutContent | None, lang: str) -> AboutOut:
       contact={},
       intro_en='',
       intro_zh='',
+      home_title='',
+      home_subtitle='',
+      home_recent_works_label='',
+      home_explore_by_location_label='',
+      home_empty_video='',
+      home_empty_recent_works='',
+      home_empty_locations='',
+      home_loading_label='',
+      home_title_en='',
+      home_title_zh='',
+      home_subtitle_en='',
+      home_subtitle_zh='',
+      home_recent_works_label_en='',
+      home_recent_works_label_zh='',
+      home_explore_by_location_label_en='',
+      home_explore_by_location_label_zh='',
+      home_empty_video_en='',
+      home_empty_video_zh='',
+      home_empty_recent_works_en='',
+      home_empty_recent_works_zh='',
+      home_empty_locations_en='',
+      home_empty_locations_zh='',
+      home_loading_label_en='',
+      home_loading_label_zh='',
       locations_en=[],
       locations_zh=[],
       portrait_url=None,
@@ -28,6 +52,22 @@ def _serialize_about(content: AboutContent | None, lang: str) -> AboutOut:
 
   intro = content.intro_zh if resolved_lang == 'zh' else content.intro_en
   locations = content.locations_zh if resolved_lang == 'zh' else content.locations_en
+  home_title = content.home_title_zh if resolved_lang == 'zh' else content.home_title_en
+  home_subtitle = content.home_subtitle_zh if resolved_lang == 'zh' else content.home_subtitle_en
+  home_recent_works_label = (
+    content.home_recent_works_label_zh if resolved_lang == 'zh' else content.home_recent_works_label_en
+  )
+  home_explore_by_location_label = (
+    content.home_explore_by_location_label_zh
+    if resolved_lang == 'zh'
+    else content.home_explore_by_location_label_en
+  )
+  home_empty_video = content.home_empty_video_zh if resolved_lang == 'zh' else content.home_empty_video_en
+  home_empty_recent_works = (
+    content.home_empty_recent_works_zh if resolved_lang == 'zh' else content.home_empty_recent_works_en
+  )
+  home_empty_locations = content.home_empty_locations_zh if resolved_lang == 'zh' else content.home_empty_locations_en
+  home_loading_label = content.home_loading_label_zh if resolved_lang == 'zh' else content.home_loading_label_en
   return AboutOut(
     lang=resolved_lang,
     intro=intro,
@@ -35,6 +75,30 @@ def _serialize_about(content: AboutContent | None, lang: str) -> AboutOut:
     contact=content.contact or {},
     intro_en=content.intro_en,
     intro_zh=content.intro_zh,
+    home_title=home_title,
+    home_subtitle=home_subtitle,
+    home_recent_works_label=home_recent_works_label,
+    home_explore_by_location_label=home_explore_by_location_label,
+    home_empty_video=home_empty_video,
+    home_empty_recent_works=home_empty_recent_works,
+    home_empty_locations=home_empty_locations,
+    home_loading_label=home_loading_label,
+    home_title_en=content.home_title_en,
+    home_title_zh=content.home_title_zh,
+    home_subtitle_en=content.home_subtitle_en,
+    home_subtitle_zh=content.home_subtitle_zh,
+    home_recent_works_label_en=content.home_recent_works_label_en,
+    home_recent_works_label_zh=content.home_recent_works_label_zh,
+    home_explore_by_location_label_en=content.home_explore_by_location_label_en,
+    home_explore_by_location_label_zh=content.home_explore_by_location_label_zh,
+    home_empty_video_en=content.home_empty_video_en,
+    home_empty_video_zh=content.home_empty_video_zh,
+    home_empty_recent_works_en=content.home_empty_recent_works_en,
+    home_empty_recent_works_zh=content.home_empty_recent_works_zh,
+    home_empty_locations_en=content.home_empty_locations_en,
+    home_empty_locations_zh=content.home_empty_locations_zh,
+    home_loading_label_en=content.home_loading_label_en,
+    home_loading_label_zh=content.home_loading_label_zh,
     locations_en=content.locations_en or [],
     locations_zh=content.locations_zh or [],
     portrait_url=content.portrait_url,
