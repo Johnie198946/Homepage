@@ -365,9 +365,14 @@ export function Admin() {
     () => collections.find((item) => item.id === uploadCollectionId) ?? null,
     [collections, uploadCollectionId]
   );
+  const activeBatchEditCollection = useMemo(
+    () => collections.find((item) => item.id === batchEdit.collectionId) ?? null,
+    [batchEdit.collectionId, collections]
+  );
+  const activePhotoFilterCollectionId = batchEdit.collectionId || uploadCollectionId;
   const filteredPhotos = useMemo(
-    () => (uploadCollectionId ? photos.filter((photo) => photo.collectionId === uploadCollectionId) : photos),
-    [photos, uploadCollectionId]
+    () => (activePhotoFilterCollectionId ? photos.filter((photo) => photo.collectionId === activePhotoFilterCollectionId) : photos),
+    [activePhotoFilterCollectionId, photos]
   );
   const hasFilteredPhotos = filteredPhotos.length > 0;
   const areAllFilteredPhotosSelected = hasFilteredPhotos && selectedPhotos.size === filteredPhotos.length;
@@ -603,6 +608,32 @@ export function Admin() {
     setUploadLocation(activeUploadCollection.location);
     setUploadCategory(activeUploadCollection.category || DEFAULT_UPLOAD_CATEGORY);
   }, [activeUploadCollection, uploadCollectionId]);
+
+  useEffect(() => {
+    if (!batchEdit.collectionId) {
+      setBatchEdit((prev) => {
+        if (!prev.location && !prev.category) {
+          return prev;
+        }
+        return {
+          ...prev,
+          location: "",
+          category: "",
+        };
+      });
+      return;
+    }
+
+    if (!activeBatchEditCollection) {
+      return;
+    }
+
+    setBatchEdit((prev) => ({
+      ...prev,
+      location: activeBatchEditCollection.location,
+      category: activeBatchEditCollection.category || "",
+    }));
+  }, [activeBatchEditCollection, batchEdit.collectionId]);
 
   useEffect(() => {
     const visiblePhotoIds = new Set(filteredPhotos.map((photo) => photo.id));
@@ -2488,7 +2519,7 @@ export function Admin() {
                       Delete Selected
                     </button>
                     <span className="ml-auto text-sm text-muted-foreground">
-                      {uploadCollectionId ? `${filteredPhotos.length} photos in selected collection` : `${photos.length} photos total`}
+                      {activePhotoFilterCollectionId ? `${filteredPhotos.length} photos in selected collection` : `${photos.length} photos total`}
                     </span>
                   </div>
 
