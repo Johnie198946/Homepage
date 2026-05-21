@@ -69,6 +69,7 @@ type AnalyticsRange = "7d" | "30d" | "90d";
 type InquiryVisualReadStatus = BusinessInquiryReadStatus | "reading";
 
 const CATEGORY_OPTIONS = ["Landscape", "Architecture", "Street Photography"];
+const DEFAULT_UPLOAD_CATEGORY = CATEGORY_OPTIONS[0];
 const VIDEO_UPLOAD_ACCEPT = "video/mp4,video/webm,video/quicktime,video/x-m4v,video/m4v,.mp4,.webm,.mov,.m4v";
 const BUSINESS_STATUS_OPTIONS: Array<{ value: BusinessInquiryStatus; label: string }> = [
   { value: "new", label: "待跟进" },
@@ -142,6 +143,16 @@ type PhotoDraft = {
   collectionId: number;
 };
 
+type BatchUploadDraft = {
+  titleEn: string;
+  titleZh: string;
+  descriptionEn: string;
+  descriptionZh: string;
+  detailsEn: string;
+  detailsZh: string;
+  sortOrder: number;
+};
+
 function toPhotoDraft(photo: PhotoItem): PhotoDraft {
   return {
     titleEn: photo.titleEn,
@@ -152,6 +163,18 @@ function toPhotoDraft(photo: PhotoItem): PhotoDraft {
     category: photo.category,
     collectionId: photo.collectionId,
   };
+}
+
+function toBatchUploadPayloadItems(drafts: BatchUploadDraft[]) {
+  return drafts.map((item) => ({
+    title_en: item.titleEn,
+    title_zh: item.titleZh,
+    description_en: item.descriptionEn,
+    description_zh: item.descriptionZh,
+    details_en: item.detailsEn,
+    details_zh: item.detailsZh,
+    sort_order: item.sortOrder,
+  }));
 }
 
 function toCollectionDraft(collection: CollectionItem): CollectionDraft {
@@ -302,23 +325,13 @@ export function Admin() {
 
   const [uploadCollectionId, setUploadCollectionId] = useState<number>(0);
   const [uploadLocation, setUploadLocation] = useState("");
-  const [uploadCategory, setUploadCategory] = useState("Landscape");
+  const [uploadCategory, setUploadCategory] = useState(DEFAULT_UPLOAD_CATEGORY);
   const [uploadCopyrightName, setUploadCopyrightName] = useState("Johnie Photography");
   const [uploadCopyrightYear, setUploadCopyrightYear] = useState<number>(new Date().getFullYear());
   const [uploadSortStart, setUploadSortStart] = useState<number>(100);
   const [uploadSortStep, setUploadSortStep] = useState<number>(10);
   const [uploadFiles, setUploadFiles] = useState<File[]>([]);
-  const [uploadDrafts, setUploadDrafts] = useState<
-    Array<{
-      titleEn: string;
-      titleZh: string;
-      descriptionEn: string;
-      descriptionZh: string;
-      detailsEn: string;
-      detailsZh: string;
-      sortOrder: number;
-    }>
-  >([]);
+  const [uploadDrafts, setUploadDrafts] = useState<BatchUploadDraft[]>([]);
   const [isBatchUploading, setIsBatchUploading] = useState(false);
   const [uploadFailures, setUploadFailures] = useState<Array<{ fileName: string; error: string }>>([]);
 
@@ -348,6 +361,16 @@ export function Admin() {
     });
     return counts;
   }, [photos]);
+  const activeUploadCollection = useMemo(
+    () => collections.find((item) => item.id === uploadCollectionId) ?? null,
+    [collections, uploadCollectionId]
+  );
+  const filteredPhotos = useMemo(
+    () => (uploadCollectionId ? photos.filter((photo) => photo.collectionId === uploadCollectionId) : photos),
+    [photos, uploadCollectionId]
+  );
+  const hasFilteredPhotos = filteredPhotos.length > 0;
+  const areAllFilteredPhotosSelected = hasFilteredPhotos && selectedPhotos.size === filteredPhotos.length;
   const inquiryStats = useMemo(
     () => ({
       total: inquiries.length,
@@ -565,6 +588,29 @@ export function Admin() {
       toast.error(extractApiMessage(error));
     });
   }, [activeTab, isAuthenticated, selectedInquiryId]);
+
+  useEffect(() => {
+    if (!uploadCollectionId) {
+      setUploadLocation("");
+      setUploadCategory(DEFAULT_UPLOAD_CATEGORY);
+      return;
+    }
+
+    if (!activeUploadCollection) {
+      return;
+    }
+
+    setUploadLocation(activeUploadCollection.location);
+    setUploadCategory(activeUploadCollection.category || DEFAULT_UPLOAD_CATEGORY);
+  }, [activeUploadCollection, uploadCollectionId]);
+
+  useEffect(() => {
+    const visiblePhotoIds = new Set(filteredPhotos.map((photo) => photo.id));
+    setSelectedPhotos((prev) => {
+      const next = new Set(Array.from(prev).filter((id) => visiblePhotoIds.has(id)));
+      return next.size === prev.size ? prev : next;
+    });
+  }, [filteredPhotos]);
 
   const handleLogin = async (event: React.FormEvent) => {
     event.preventDefault();
@@ -954,7 +1000,7 @@ export function Admin() {
       formData.append("copyright_year", String(uploadCopyrightYear || new Date().getFullYear()));
       formData.append("sort_order_start", String(uploadSortStart || 100));
       formData.append("sort_order_step", String(uploadSortStep || 10));
-      formData.append("items", JSON.stringify(uploadDrafts));
+      formData.append("items", JSON.stringify(toBatchUploadPayloadItems(uploadDrafts)));
       const result = await batchCreatePhotos(formData, i18n.language);
       const created = result.created;
 
@@ -2230,6 +2276,18 @@ export function Admin() {
                         />
                       </div>
                     </div>
+                    {activeUploadCollection ? (
+                      <div className="rounded-sm border border-border bg-muted/20 px-4 py-3 text-sm text-muted-foreground">
+                        当前上传上下文已自动同步到合集
+                        {" "}
+                        <span className="text-foreground">{activeUploadCollection.location}</span>
+                        ，下方图片列表也已自动筛选为该合集。
+                      </div>
+                    ) : (
+                      <div className="rounded-sm border border-dashed border-border px-4 py-3 text-sm text-muted-foreground">
+                        未选择合集时，下方显示全部图片；选择合集后会自动回填地点、分类并筛选已有图片。
+                      </div>
+                    )}
                     <input
                       ref={uploadInputRef}
                       type="file"
@@ -2372,12 +2430,14 @@ export function Admin() {
                     <button
                       onClick={() =>
                         setSelectedPhotos(
-                          selectedPhotos.size === photos.length ? new Set() : new Set(photos.map((item) => item.id))
+                          areAllFilteredPhotosSelected
+                            ? new Set()
+                            : new Set(filteredPhotos.map((item) => item.id))
                         )
                       }
                       className="text-sm text-muted-foreground hover:text-foreground transition-colors"
                     >
-                      {selectedPhotos.size === photos.length ? "Deselect All" : "Select All"}
+                      {areAllFilteredPhotosSelected ? "Deselect All" : "Select All"}
                     </button>
                     <select
                       value={batchEdit.collectionId}
@@ -2427,11 +2487,13 @@ export function Admin() {
                     <button onClick={handleBatchDelete} className="px-5 py-2 border border-destructive text-destructive hover:bg-destructive hover:text-white transition-colors text-sm uppercase">
                       Delete Selected
                     </button>
-                    <span className="ml-auto text-sm text-muted-foreground">{photos.length} photos total</span>
+                    <span className="ml-auto text-sm text-muted-foreground">
+                      {uploadCollectionId ? `${filteredPhotos.length} photos in selected collection` : `${photos.length} photos total`}
+                    </span>
                   </div>
 
                   <div className="space-y-4">
-                    {photos.map((photo) => (
+                    {filteredPhotos.map((photo) => (
                       <div
                         key={photo.id}
                         className={`border p-6 transition-colors ${

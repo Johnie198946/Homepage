@@ -3,6 +3,7 @@ import { useSearchParams } from "react-router";
 import { useTranslation } from "react-i18next";
 import { motion } from "motion/react";
 import { X } from "lucide-react";
+import Masonry, { ResponsiveMasonry } from "react-responsive-masonry";
 
 import { resolvePhotoMediaUrl } from "../api/photoMedia";
 import { extractApiMessage } from "../api/client";
@@ -36,8 +37,13 @@ interface Collection {
 type PhotoOrientation = "landscape" | "portrait" | "square" | "unknown";
 
 const COLLAPSED_PHOTO_COUNT = 6;
-const GALLERY_GRID_CLASS_NAME =
-  "grid grid-cols-1 min-[520px]:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-x-4 gap-y-8 md:gap-x-5 md:gap-y-10 xl:gap-x-6 xl:gap-y-12";
+const GALLERY_MASONRY_BREAKPOINTS = {
+  0: 1,
+  520: 2,
+  768: 3,
+  1024: 4,
+};
+const GALLERY_MASONRY_GUTTER = "1.5rem";
 const SKELETON_ORIENTATION_PATTERN: PhotoOrientation[] = [
   "landscape",
   "portrait",
@@ -47,39 +53,11 @@ const SKELETON_ORIENTATION_PATTERN: PhotoOrientation[] = [
   "square",
 ];
 
-function getPhotoOrientation(photo: Pick<Photo, "width" | "height">): PhotoOrientation {
-  if (!photo.width || !photo.height) {
-    return "unknown";
-  }
-
-  const ratio = photo.width / photo.height;
-  if (ratio > 1.15) {
-    return "landscape";
-  }
-  if (ratio < 0.85) {
-    return "portrait";
-  }
-  return "square";
-}
-
 function getPhotoAspectRatio(photo: Pick<Photo, "width" | "height">) {
   if (!photo.width || !photo.height) {
     return "3 / 4";
   }
   return `${photo.width} / ${photo.height}`;
-}
-
-function getPhotoCardClassName(orientation: PhotoOrientation) {
-  switch (orientation) {
-    case "landscape":
-      return "col-span-1 min-[520px]:col-span-2 md:col-span-2";
-    case "square":
-      return "col-span-1";
-    case "portrait":
-    case "unknown":
-    default:
-      return "col-span-1";
-  }
 }
 
 function getSkeletonAspectRatio(orientation: PhotoOrientation) {
@@ -348,22 +326,24 @@ export function Gallery() {
           </motion.div>
 
           {isLoading ? (
-            <div className={GALLERY_GRID_CLASS_NAME}>
-              {Array.from({ length: COLLAPSED_PHOTO_COUNT }).map((_, index) => {
-                const orientation =
-                  SKELETON_ORIENTATION_PATTERN[index % SKELETON_ORIENTATION_PATTERN.length];
-                return (
-                  <div key={index} className={`${getPhotoCardClassName(orientation)} space-y-4 self-start`}>
-                    <div
-                      className="animate-pulse bg-muted"
-                      style={{ aspectRatio: getSkeletonAspectRatio(orientation) }}
-                    />
-                    <div className="h-5 w-2/3 animate-pulse bg-muted" />
-                    <div className="h-4 w-1/2 animate-pulse bg-muted" />
-                  </div>
-                );
-              })}
-            </div>
+            <ResponsiveMasonry columnsCountBreakPoints={GALLERY_MASONRY_BREAKPOINTS}>
+              <Masonry gutter={GALLERY_MASONRY_GUTTER}>
+                {Array.from({ length: COLLAPSED_PHOTO_COUNT }).map((_, index) => {
+                  const orientation =
+                    SKELETON_ORIENTATION_PATTERN[index % SKELETON_ORIENTATION_PATTERN.length];
+                  return (
+                    <div key={index} className="space-y-4">
+                      <div
+                        className="animate-pulse bg-muted"
+                        style={{ aspectRatio: getSkeletonAspectRatio(orientation) }}
+                      />
+                      <div className="h-5 w-2/3 animate-pulse bg-muted" />
+                      <div className="h-4 w-1/2 animate-pulse bg-muted" />
+                    </div>
+                  );
+                })}
+              </Masonry>
+            </ResponsiveMasonry>
           ) : (
             <div className="space-y-32">
               {!hasCollections && (
@@ -391,51 +371,52 @@ export function Gallery() {
                         <p className="text-muted-foreground max-w-xl">{collection.description}</p>
                       </div>
 
-                      <div className={GALLERY_GRID_CLASS_NAME}>
-                        {displayPhotos.map((photo, photoIndex) => {
-                          const orientation = getPhotoOrientation(photo);
-                          return (
-                            <motion.div
-                              key={photo.id}
-                              initial={{ opacity: 0, scale: 0.95 }}
-                              whileInView={{ opacity: 1, scale: 1 }}
-                              viewport={{ once: true }}
-                              transition={{ duration: 0.4, delay: photoIndex * 0.1 }}
-                              whileHover={{ scale: 1.02 }}
-                              className={`cursor-pointer group ${getPhotoCardClassName(orientation)} self-start`}
-                              onClick={() => {
-                                setSelectedPhoto(photo);
-                                void trackEvent({
-                                  eventType: "photo_view",
-                                  targetType: "photo",
-                                  targetId: String(photo.id),
-                                  meta: { location: photo.location },
-                                });
-                              }}
-                            >
-                              <div
-                                className="overflow-hidden bg-muted"
-                                style={{ aspectRatio: getPhotoAspectRatio(photo) }}
+                      <ResponsiveMasonry columnsCountBreakPoints={GALLERY_MASONRY_BREAKPOINTS}>
+                        <Masonry gutter={GALLERY_MASONRY_GUTTER}>
+                          {displayPhotos.map((photo, photoIndex) => {
+                            return (
+                              <motion.div
+                                key={photo.id}
+                                initial={{ opacity: 0, scale: 0.95 }}
+                                whileInView={{ opacity: 1, scale: 1 }}
+                                viewport={{ once: true }}
+                                transition={{ duration: 0.4, delay: photoIndex * 0.1 }}
+                                whileHover={{ scale: 1.02 }}
+                                className="cursor-pointer group"
+                                onClick={() => {
+                                  setSelectedPhoto(photo);
+                                  void trackEvent({
+                                    eventType: "photo_view",
+                                    targetType: "photo",
+                                    targetId: String(photo.id),
+                                    meta: { location: photo.location },
+                                  });
+                                }}
                               >
-                                <LazyPhotoImage
-                                  cacheKey={photo.id}
-                                  loadSrc={(options) =>
-                                    loadPhotoSrc(photo, false, options?.forceRefresh ?? false)
-                                  }
-                                  errorMessage={t("common.imageLoadError")}
-                                  alt={photo.description}
-                                  className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                                  placeholderClassName="bg-muted"
-                                />
-                              </div>
-                              <div className="mt-4 space-y-1">
-                                <h3 className="font-medium">{photo.description}</h3>
-                                <p className="text-sm text-muted-foreground">{photo.location}</p>
-                              </div>
-                            </motion.div>
-                          );
-                        })}
-                      </div>
+                                <div
+                                  className="overflow-hidden bg-muted"
+                                  style={{ aspectRatio: getPhotoAspectRatio(photo) }}
+                                >
+                                  <LazyPhotoImage
+                                    cacheKey={photo.id}
+                                    loadSrc={(options) =>
+                                      loadPhotoSrc(photo, false, options?.forceRefresh ?? false)
+                                    }
+                                    errorMessage={t("common.imageLoadError")}
+                                    alt={photo.description}
+                                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
+                                    placeholderClassName="bg-muted"
+                                  />
+                                </div>
+                                <div className="mt-4 space-y-1">
+                                  <h3 className="font-medium">{photo.description}</h3>
+                                  <p className="text-sm text-muted-foreground">{photo.location}</p>
+                                </div>
+                              </motion.div>
+                            );
+                          })}
+                        </Masonry>
+                      </ResponsiveMasonry>
 
                       {collection.photos.length > COLLAPSED_PHOTO_COUNT && (
                         <div className="mt-8 text-center">
